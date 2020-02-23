@@ -1,0 +1,8 @@
+config/*
+!config/.gitkeep
+
+.vscode
+.venv
+.ipynb_checkpoints
+__pycache__
+*.ipynb
