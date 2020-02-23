@@ -1,3 +1,5 @@
+import logging
+
 import ynab_client
 import n26.api
 import n26.config
@@ -7,6 +9,8 @@ from datetime import datetime
 from src.paths import get_n26_token_data_filepath
 from src.config import load_ynab_config, get_n26_account_config
 from src.exceptions import BudgetNotFoundError, AccountNotFoundError
+
+logger = logging.getLogger(__name__)
 
 
 def update_ynab(account_name):
@@ -23,18 +27,24 @@ def update_ynab(account_name):
 
 
 def download_n26_transactions(account_name):
+    logger.info(f"Retrieving N26 transactions from the account '{account_name}'...")
     # Get access
     client = get_n26_client(account_name)
     # Get N26 transactions
     transactions = client.get_transactions(limit=0)
+    logger.info(f"{len(transactions)} transactions have been retrieved!")
     return transactions
 
 
 def upload_n26_transactions_to_ynab(transactions_n26, budget_name, account_name):
+    logger.info(
+        f"Requested {len(transactions_n26)} transaction updates to budget "
+        f"'{budget_name}' and account '{account_name}'"
+    )
     # Get an instance of YNAB and N26 APIs
     ynab_cli = get_ynab_client()
 
-    # Get YNAB budget and account maps to respective IDs
+    # Find the existing budgets and its respective IDs in YNAB
     ynab_budget_id_map = get_ynab_budget_id_mapping(ynab_cli)
     # If the budget name is not among the budget names retrieved, raise an exception
     if budget_name not in ynab_budget_id_map:
@@ -43,22 +53,30 @@ def upload_n26_transactions_to_ynab(transactions_n26, budget_name, account_name)
         raise BudgetNotFoundError(
             f"Budget named '{budget_name}' not found, available ones: {budgets_str}"
         )
+    # Get the budget ID
     budget_id = ynab_budget_id_map[budget_name]
+    logger.info(f"YNAB budget with name '{budget_name}' paired with id '{budget_id}'")
+
+    # Find the existing accounts and its respective IDs in YNAB, within the budget
     ynab_account_id_map = get_ynab_account_id_mapping(ynab_cli, budget_id)
     # If the account name is not among the account names retrieved, raise an exception
     if account_name not in ynab_account_id_map:
         accounts = list(ynab_account_id_map.keys())
         accounts_str = "'" + "', '".join(accounts) + "'"
         raise AccountNotFoundError(
-            f"Account named '{account_name}' not found, available ones: {accounts_str}"
+            f"YNAB account named '{account_name}' not found, available ones: {accounts_str}"
         )
+    # Get the account ID
     account_id = ynab_account_id_map[account_name]
-
+    logger.info(f"Account with name '{account_name}' paired with id '{account_id}'")
+    logger.info(f"Translating transactions to YNAB format...")
     transactions_ynab = list(
         map(lambda t: _convert_n26_transaction_to_ynab(t, account_id), transactions_n26)
     )
+    logger.info(f"Requesting transactions push to the YNAB api...")
     transactions_ynab = ynab_cli.BulkTransactions(transactions=transactions_ynab)
     ynab_cli.TransactionsApi().bulk_create_transactions(budget_id, transactions_ynab)
+    logger.info(f"Transactions pushed to YNAB successfully!")
 
 
 def _convert_n26_transaction_to_ynab(t_n26, account_id):
