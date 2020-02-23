@@ -1,6 +1,8 @@
 import logging
-
+import tenacity
+import time
 import ynab_client
+
 import n26.api
 import n26.config
 
@@ -8,7 +10,11 @@ from datetime import datetime
 
 from src.paths import get_n26_token_data_filepath
 from src.config import load_ynab_config, get_n26_account_config
-from src.exceptions import BudgetNotFoundError, AccountNotFoundError
+from src.exceptions import (
+    BudgetNotFoundError,
+    AccountNotFoundError,
+    AuthenticationTimeoutError,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -31,7 +37,23 @@ def download_n26_transactions(account_name):
     # Get access
     client = get_n26_client(account_name)
     # Get N26 transactions
+    watchdog = 5  # trials before failure
+    delay = 30  # minutes
+    while watchdog >= 0:  # If there are still trials left...
+        logger.info("Requesting transfers to the N26 API...")
+        try:
+            # Try to call the API. This will potentially show a two-factor notification
+            # in the phone of the user. In that case, if the access is not granted, the
+            # api client will timeout with a tenacy.RetryError exception
     transactions = client.get_transactions(limit=0)
+            break  # Exit the loop on success
+        except tenacity.RetryError:
+            logger.error("No app authentication provided! Waiting 30 min...")
+            if watchdog <= 0:
+                raise AuthenticationTimeoutError("two-factor auth failed! 😡")
+            watchdog -= 1
+            time.sleep(60 * delay)
+
     logger.info(f"{len(transactions)} transactions have been retrieved!")
     return transactions
 

@@ -4,3 +4,7 @@ class BudgetNotFoundError(Exception):
 
 class AccountNotFoundError(Exception):
     pass
+
+
+class AuthenticationTimeoutError(Exception):
+    pass
