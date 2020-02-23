@@ -1,9 +1,12 @@
 import ynab_client
 import n26.api
 import n26.config
+
+from datetime import datetime
+
 from src.paths import get_n26_token_data_filepath
 from src.config import load_ynab_config, get_n26_account_config
-from datetime import datetime
+from src.exceptions import BudgetNotFoundError, AccountNotFoundError
 
 
 def update_ynab(account_name):
@@ -33,8 +36,22 @@ def upload_n26_transactions_to_ynab(transactions_n26, budget_name, account_name)
 
     # Get YNAB budget and account maps to respective IDs
     ynab_budget_id_map = get_ynab_budget_id_mapping(ynab_cli)
+    # If the budget name is not among the budget names retrieved, raise an exception
+    if budget_name not in ynab_budget_id_map:
+        budgets = list(ynab_budget_id_map.keys())
+        budgets_str = "'" + "', '".join(budgets) + "'"
+        raise BudgetNotFoundError(
+            f"Budget named '{budget_name}' not found, available ones: {budgets_str}"
+        )
     budget_id = ynab_budget_id_map[budget_name]
     ynab_account_id_map = get_ynab_account_id_mapping(ynab_cli, budget_id)
+    # If the account name is not among the account names retrieved, raise an exception
+    if account_name not in ynab_account_id_map:
+        accounts = list(ynab_account_id_map.keys())
+        accounts_str = "'" + "', '".join(accounts) + "'"
+        raise AccountNotFoundError(
+            f"Account named '{account_name}' not found, available ones: {accounts_str}"
+        )
     account_id = ynab_account_id_map[account_name]
 
     transactions_ynab = list(
