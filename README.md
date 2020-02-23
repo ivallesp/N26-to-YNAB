@@ -16,7 +16,7 @@ Follow the next steps to have the project running in your system:
 6. Create the `config/ynab.toml` file following the example in the same folder
 7. Create the `config/n26.toml` file following the example in the same folder. Make sure you establish the links from each account configured here to the desired YNAB account name
 8. Activate the environment with `source .venv/bin/activate`
-9. Run `python main.py -a <n26-account-name>` to sync the transactions in the YNAB account
+9. Run `python main.py -a <n26-account-name>` to send the transactions from the n26 account specified to the YNAB account
 
 ## Contribution
 Pull requests and issues will be tackled upon availability.
