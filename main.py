@@ -1,7 +1,10 @@
 import argparse
-
-
+import logging.config
 from src.api import update_ynab
+from src.paths import get_log_config_filepath
+
+logging.config.fileConfig(get_log_config_filepath(), disable_existing_loggers=False)
+logger = logging.getLogger(__name__)
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
@@ -21,4 +24,6 @@ if __name__ == "__main__":
     results = parser.parse_args()
 
     # Run the update process
+    logger.info(f"Requested 💰 YNAB update for account name: {results.account}")
     update_ynab(results.account)
+    logger.info(f"YNAB update performed successfully! 🎉🎊🥳")

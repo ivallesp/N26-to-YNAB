@@ -1,6 +1,10 @@
 import os
 
 
+def get_log_config_filepath():
+    return "logging.ini"
+
+
 def get_config_path():
     path = os.path.join("config")
     return path
