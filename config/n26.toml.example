@@ -1,0 +1,11 @@
+[alan]
+username = "alanturing@gmail.com"
+password = "thinkingmachines"
+mfa_type = "app"
+ynab_account = "alan-turing"
+
+[geoffrey]
+username = "geoffreyhinton@gmail.com"
+password = "backpropagation"
+mfa_type = "app"
+ynab_account = "geoffrey-hinton"
