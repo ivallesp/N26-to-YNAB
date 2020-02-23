@@ -20,6 +20,13 @@ logger = logging.getLogger(__name__)
 
 
 def update_ynab(account_name):
+    """Call the N26 API with account name specified, download all the transactions, and
+    bulk push them to YNAB through their API.
+
+    Args:
+        account_name (str): Name of the N26 account as configured in the config/n26.toml
+        file.
+    """
     ynab_conf = load_ynab_config()["ynab"]
     n26_conf = get_n26_account_config(account_name)
     ynab_account_name = n26_conf["ynab_account"]
@@ -33,6 +40,20 @@ def update_ynab(account_name):
 
 
 def download_n26_transactions(account_name):
+    """Download all the N26 transactions from the specified account
+
+    Args:
+        account_name (str): Name of the N26 account as configured in the config/n26.toml
+        file
+
+    Raises:
+        AuthenticationTimeoutError: if the user doesn't give acces through the mobile
+        app (2-factor-auth), the function waits for 30 min and retries again. If the
+        user does not respond after 5 trials, the function fails with this exception.
+
+    Returns:
+        list: transactions with the N26 native format
+    """
     logger.info(f"Retrieving N26 transactions from the account '{account_name}'...")
     # Get access
     client = get_n26_client(account_name)
@@ -45,7 +66,7 @@ def download_n26_transactions(account_name):
             # Try to call the API. This will potentially show a two-factor notification
             # in the phone of the user. In that case, if the access is not granted, the
             # api client will timeout with a tenacy.RetryError exception
-    transactions = client.get_transactions(limit=0)
+            transactions = client.get_transactions(limit=0)
             break  # Exit the loop on success
         except tenacity.RetryError:
             logger.error("No app authentication provided! Waiting 30 min...")
@@ -59,6 +80,21 @@ def download_n26_transactions(account_name):
 
 
 def upload_n26_transactions_to_ynab(transactions_n26, budget_name, account_name):
+    """Gets a set of transactions as input and uploads them to the specified budget
+    and account. It uses the bulk method for uploading the transactions to YNAB
+
+    Args:
+        transactions_n26 (list): list of dictionaries, N26 native format
+        budget_name (str): name of the budget as configured in the config/ynab.toml
+        account_name (str): name of the YNAB account associated to a N26 account as
+        configured in the config/n26.toml
+
+    Raises:
+        BudgetNotFoundError: this exception is raised when the budget specified does
+        not exist in the YNAB account configured
+        AccountNotFoundError: this exception is raised when the account specified does
+        not exist in the specified budget of the YNAB account configured
+    """
     logger.info(
         f"Requested {len(transactions_n26)} transaction updates to budget "
         f"'{budget_name}' and account '{account_name}'"
@@ -102,6 +138,16 @@ def upload_n26_transactions_to_ynab(transactions_n26, budget_name, account_name)
 
 
 def _convert_n26_transaction_to_ynab(t_n26, account_id):
+    """Converts from the N26 format to the YNAB format. Can be enhanced so that it
+    translates from the N26 automatic categorization to the YNAB one.
+
+    Args:
+        t_n26 (dict): dictionary containing all the N26 native transaction keys
+        account_id (str): id of the YNAB account
+
+    Returns:
+        ynab_client.Transaction: transaction in the YNAB native format.
+    """
     t_ynab = {
         "id": t_n26["id"],
         "import_id": t_n26["id"],
@@ -117,19 +163,41 @@ def _convert_n26_transaction_to_ynab(t_n26, account_id):
     return t_ynab.transaction
 
 
-def get_ynab_account_id_mapping(ynab_client, budget_id):
-    response = ynab_client.AccountsApi().get_accounts(budget_id).data.accounts
-    mapping = {account.name: account.id for account in response}
-    return mapping
-
-
 def get_ynab_budget_id_mapping(ynab_client):
+    """Build a mapping of YNAB budget names to internal ids
+
+    Args:
+        ynab_client (ynab_client): YNAB configured client with the credentials
+
+    Returns:
+        dict: Dictionary with budget names as keys and ids as values
+    """
     response = ynab_client.BudgetsApi().get_budgets().data.budgets
     mapping = {budget.name: budget.id for budget in response}
     return mapping
 
 
+def get_ynab_account_id_mapping(ynab_client, budget_id):
+    """Build a mapping of YNAB account names to internal ids
+
+    Args:
+        ynab_client (ynab_client): YNAB configured client with the credentials
+        budget_id (str): id of the budget to query
+
+    Returns:
+        dict: Dictionary with account names as keys and ids as values
+    """
+    response = ynab_client.AccountsApi().get_accounts(budget_id).data.accounts
+    mapping = {account.name: account.id for account in response}
+    return mapping
+
+
 def get_ynab_client():
+    """Handles YNAB connection and returns the cli
+
+    Returns:
+        ynab_client: client ready to query the API
+    """
     config = load_ynab_config()
     configuration = ynab_client.Configuration()
     configuration.api_key_prefix["Authorization"] = "Bearer"
@@ -138,6 +206,15 @@ def get_ynab_client():
 
 
 def get_n26_client(account_name):
+    """Handles the N26 connection and returns the cli
+
+    Args:
+        account_name (str): name of the YNAB account associated to a N26 account as
+        configured in the config/n26.toml
+
+    Returns:
+        n26.api.Api: client ready to query the API
+    """
     config = get_n26_account_config(account_name)
     conf = n26.config.Config(validate=False)
     conf.USERNAME.value = config["username"]
