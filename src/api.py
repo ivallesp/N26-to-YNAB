@@ -49,7 +49,7 @@ def _convert_n26_transaction_to_ynab(t_n26, account_id):
         "id": t_n26["id"],
         "import_id": t_n26["id"],
         "account_id": account_id,
-        "date": datetime.fromtimestamp(t_n26["createdTS"] / 1000),
+        "date": datetime.fromtimestamp(t_n26["visibleTS"] / 1000),
         "amount": int(t_n26["amount"] * 1000),
         "cleared": "uncleared",
         "approved": False,
