@@ -66,7 +66,7 @@ def download_n26_transactions(account_name):
             # Try to call the API. This will potentially show a two-factor notification
             # in the phone of the user. In that case, if the access is not granted, the
             # api client will timeout with a tenacy.RetryError exception
-            transactions = client.get_transactions(limit=0)
+            transactions = client.get_transactions(limit=99999)
             break  # Exit the loop on success
         except tenacity.RetryError:
             logger.error("No app authentication provided! Waiting 30 min...")
