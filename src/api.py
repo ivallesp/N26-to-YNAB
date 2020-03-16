@@ -1,10 +1,12 @@
 import logging
 import tenacity
 import time
+import os
 import ynab_client
 
 import n26.api
 import n26.config
+import pandas as pd
 
 from datetime import datetime
 
@@ -37,6 +39,10 @@ def update_ynab(account_name):
         budget_name=budget_name,
         account_name=ynab_account_name,
     )
+    # Save the transactions for traceback purposes
+    filename = datetime.now().isoformat() + "_" + account_name + ".csv"
+    path = os.path.join("logs", filename)
+    pd.DataFrame(transactions).to_csv(path, sep=",", index=False)
 
 
 def download_n26_transactions(account_name):
