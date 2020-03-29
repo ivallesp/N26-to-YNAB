@@ -34,15 +34,40 @@ def update_ynab(account_name):
     ynab_account_name = n26_conf["ynab_account"]
     budget_name = ynab_conf["budget_name"]
     transactions = download_n26_transactions(account_name)
+
+    # Save the transactions for traceback purposes
+    filename = datetime.now().isoformat() + "_" + account_name + ".csv"
+    path = os.path.join("logs", filename)
+    pd.DataFrame(transactions).to_csv(path, sep=",", index=False)
+
+    transactions = filter_transactions(transactions)
     upload_n26_transactions_to_ynab(
         transactions_n26=transactions,
         budget_name=budget_name,
         account_name=ynab_account_name,
     )
-    # Save the transactions for traceback purposes
-    filename = datetime.now().isoformat() + "_" + account_name + ".csv"
-    path = os.path.join("logs", filename)
-    pd.DataFrame(transactions).to_csv(path, sep=",", index=False)
+
+
+def filter_transactions(transactions):
+    """
+    This function is intended to be applied to the raw list of transactions provided by
+    the N26 API.
+
+    Args:
+        transactions (list): list of dictionaries, one dict per transaction, as given by
+        the N26 API.
+
+    Returns:
+        list: same format as the input transactions list but potentially shortened.
+    """
+    # Remove the temporary transactions. These transactions will disappear and be
+    # replaced by permanent ones. If not removed, this causes duplicates in YNAB,
+    # because they have different import IDs.
+    logger.info(f"Received {len(transactions)} transactions to filter")
+    filtered_types = ["AA", "AE", "AV"]
+    transactions = list(filter(lambda x: x["type"] not in filtered_types, transactions))
+    logger.info(f"{len(transactions)} transactions remaining after applying the filter!")
+    return transactions
 
 
 def download_n26_transactions(account_name):
