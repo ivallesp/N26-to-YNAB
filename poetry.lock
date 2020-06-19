@@ -310,7 +310,7 @@ description = "API and command line tools to interact with the https://n26.com/ 
 name = "n26"
 optional = false
 python-versions = "*"
-version = "2.2.1"
+version = "2.2.2"
 
 [package.dependencies]
 click = "*"
@@ -778,7 +778,7 @@ mccabe = [
     {file = "mccabe-0.6.1.tar.gz", hash = "sha256:dd8d182285a0fe56bace7f45b5e7d1a6ebcbf524e8f3bd87eb0f125271b8831f"},
 ]
 n26 = [
-    {file = "n26-2.2.1.tar.gz", hash = "sha256:9a15b028065dcc9031f433db8f0553d8a1cb94de49775a69cbcda6b9dc8bcbf1"},
+    {file = "n26-2.2.2.tar.gz", hash = "sha256:20a33ebe46e8c1c4106071fd6367c5ef3d0ae7d638e47e1597885b63bf3cbaa3"},
 ]
 numpy = [
     {file = "numpy-1.18.1-cp35-cp35m-macosx_10_6_intel.whl", hash = "sha256:20b26aaa5b3da029942cdcce719b363dbe58696ad182aff0e5dcb1687ec946dc"},
