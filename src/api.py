@@ -252,6 +252,7 @@ def get_n26_client(account_name):
     conf.PASSWORD.value = config["password"]
     conf.LOGIN_DATA_STORE_PATH.value = get_n26_token_data_filepath(account_name)
     conf.MFA_TYPE.value = config["mfa_type"]
+    conf.DEVICE_TOKEN.value = config["device_token"]
     conf.validate()
     client = n26.api.Api(conf)
     return client
