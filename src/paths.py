@@ -19,7 +19,7 @@ def get_n26_config_filepath():
     path = os.path.join("config", f"n26.toml")
     if not os.path.exists(path):
         raise ValueError(
-            f"Account {account_name} not configured. File {path} not found!"
+            f"N26 not configured. File {path} not found!"
         )
     return path
 
@@ -28,6 +28,6 @@ def get_ynab_config_filepath():
     path = os.path.join("config", f"ynab.toml")
     if not os.path.exists(path):
         raise ValueError(
-            f"Account {account_name} not configured. File {path} not found!"
+            f"YNAB not configured. File {path} not found!"
         )
     return path
