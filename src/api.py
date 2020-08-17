@@ -185,6 +185,7 @@ def _convert_n26_transaction_to_ynab(t_n26, account_id):
         "account_id": account_id,
         "date": datetime.fromtimestamp(t_n26["visibleTS"] / 1000),
         "amount": int(t_n26["amount"] * 1000),
+        "memo": t_n26.get("referenceText", None),
         "cleared": "uncleared",
         "approved": False,
         "deleted": False,
