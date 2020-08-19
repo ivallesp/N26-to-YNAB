@@ -21,19 +21,21 @@ from src.exceptions import (
 logger = logging.getLogger(__name__)
 
 
-def update_ynab(account_name):
+def update_ynab(account_name, retries, delay):
     """Call the N26 API with account name specified, download all the transactions, and
     bulk push them to YNAB through their API.
 
     Args:
         account_name (str): Name of the N26 account as configured in the config/n26.toml
         file.
+        retry (int): Number of retries when downloading the n26 transactions
+        delay (int): Number of seconds delay between retries
     """
     ynab_conf = load_ynab_config()["ynab"]
     n26_conf = get_n26_account_config(account_name)
     ynab_account_name = n26_conf["ynab_account"]
     budget_name = ynab_conf["budget_name"]
-    transactions = download_n26_transactions(account_name)
+    transactions = download_n26_transactions(account_name, retries=retries, delay=delay)
 
     # Save the transactions for traceback purposes
     filename = datetime.now().isoformat() + "_" + account_name + ".csv"
@@ -66,16 +68,20 @@ def filter_transactions(transactions):
     logger.info(f"Received {len(transactions)} transactions to filter")
     filtered_types = ["AA", "AE", "AV"]
     transactions = list(filter(lambda x: x["type"] not in filtered_types, transactions))
-    logger.info(f"{len(transactions)} transactions remaining after applying the filter!")
+    logger.info(
+        f"{len(transactions)} transactions remaining after applying the filter!"
+    )
     return transactions
 
 
-def download_n26_transactions(account_name):
+def download_n26_transactions(account_name, retries=0, delay=60):
     """Download all the N26 transactions from the specified account
 
     Args:
         account_name (str): Name of the N26 account as configured in the config/n26.toml
         file
+        retries (int): Number of retries
+        delay (int): Number of seconds delay between retries
 
     Raises:
         AuthenticationTimeoutError: if the user doesn't give acces through the mobile
@@ -89,8 +95,7 @@ def download_n26_transactions(account_name):
     # Get access
     client = get_n26_client(account_name)
     # Get N26 transactions
-    watchdog = 5  # trials before failure
-    delay = 30  # minutes
+    watchdog = retries  # trials before failure
     while watchdog >= 0:  # If there are still trials left...
         logger.info("Requesting transfers to the N26 API...")
         try:
@@ -104,7 +109,7 @@ def download_n26_transactions(account_name):
             if watchdog <= 0:
                 raise AuthenticationTimeoutError("two-factor auth failed! 😡")
             watchdog -= 1
-            time.sleep(60 * delay)
+            time.sleep(delay)
 
     logger.info(f"{len(transactions)} transactions have been retrieved!")
     return transactions

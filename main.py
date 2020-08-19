@@ -21,9 +21,27 @@ if __name__ == "__main__":
         help="Name of the account to update. Has to be defined in config/n26.toml",
     )
 
+    parser.add_argument(
+        "-r",
+        action="store",
+        dest="retries",
+        required=False,
+        default=0,  # No retries
+        help=" Number of retries when downloading the n26 transactions",
+    )
+
+    parser.add_argument(
+        "-d",
+        action="store",
+        dest="delay",
+        required=False,
+        default=30 * 60,  # 30 min
+        help="Number of seconds delay between retries",
+    )
+
     results = parser.parse_args()
 
     # Run the update process
     logger.info(f"Requested 💰 YNAB update for account name: {results.account}")
-    update_ynab(results.account)
+    update_ynab(results.account, retries=results.retries, delay=results.retries)
     logger.info(f"YNAB update performed successfully! 🎉🎊🥳")
