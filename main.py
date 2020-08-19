@@ -43,5 +43,7 @@ if __name__ == "__main__":
 
     # Run the update process
     logger.info(f"Requested 💰 YNAB update for account name: {results.account}")
-    update_ynab(results.account, retries=results.retries, delay=results.retries)
+    update_ynab(
+        results.account, retries=int(results.retries), delay=int(results.retries)
+    )
     logger.info(f"YNAB update performed successfully! 🎉🎊🥳")
