@@ -1,6 +1,9 @@
 # Debian-based image with Python interpreter
 FROM python:3.6.1-slim
 
+# Install crontab
+RUN apt-get update && apt-get -y install cron
+
 # Install and configure package manager
 RUN pip install --upgrade pip
 RUN pip install 'poetry==1.1.6'
@@ -31,8 +34,12 @@ COPY main.py main.py
 # Copy logging configuration into container
 COPY logging.ini logging.ini
 
+# Copy configure_crontabs.sh into container
+COPY configure_crontabs.sh configure_crontabs.sh
+
 # Create logs dir
 RUN mkdir logs
 
-# Run python command
-CMD for ACCOUNT in $ACCOUNTS; do python main.py -a $ACCOUNT; done
+# If the CRONTAB expression is not defined, just run the python command, otherwise
+# just wait for the crontab triggers.
+CMD if [ -z $CRONTAB ]; then for ACCOUNT in $ACCOUNTS; do python main.py -a $ACCOUNT; done; else bash configure_crontabs.sh "$ACCOUNTS" "$CRONTAB"; fi
