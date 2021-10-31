@@ -1,6 +1,6 @@
 # N26 to YNAB automation bridge
 This is a minimalistic implementation of a process that bulks the transactions of a given N26 account to You Need A Budget; all through APIs.
-The current implementation handles duplication through the YNAB internal functionality. It's way of working consists of calling the main module with an argument specifying an account name (previously configured). After that call, the system will retrieved all the N26 transactions, and it will push them to the YNAB budget and account specified in the configuration files.
+The current implementation handles duplication through the YNAB internal functionality. Its way of working consists of calling the main module with an argument specifying an account name (previously configured). After that call, the system will retrieved all the N26 transactions, and it will push them to the YNAB budget and account specified in the configuration files.
 
 Please keep in mind that this is a personal project meant to satisfy a personal necessity. It may not totally apply to your use-case. Feel free to fork the project or suggest any extra functionality.
 
