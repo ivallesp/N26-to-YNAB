@@ -8,7 +8,7 @@ import n26.api
 import n26.config
 import pandas as pd
 
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from src.paths import get_n26_token_data_filepath
 from src.config import load_ynab_config, get_n26_account_config
@@ -71,7 +71,16 @@ def filter_transactions(transactions):
     logger.info(
         f"{len(transactions)} transactions remaining after applying the filter!"
     )
-    return transactions
+
+    # Filter transactions from more then 5 years ago. YNAB restriction, cannot handle
+    # transactions with more than 5 years old.
+    threshold = datetime.now() - timedelta(days = 365*5-30)  # Now - (5 years - 1 month)
+
+    transactions = filter(
+        lambda t: datetime.fromtimestamp(t["visibleTS"] / 1000) > threshold,
+        transactions
+    )
+    return list(transactions)
 
 
 def download_n26_transactions(account_name, retries=0, delay=60):
