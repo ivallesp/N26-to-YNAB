@@ -9,7 +9,7 @@ Follow the next steps to have the project running in your system:
 
 1. Install [pyenv](https://github.com/pyenv/pyenv) and [poetry](https://python-poetry.org/) in your system following the linked official guides.
 2. Open a terminal, clone this repository and `cd` to the cloned folder.
-3. Run `pyenv install 3.6.1` in your terminal for installing the required python.
+3. Run `pyenv install 3.9.9` in your terminal for installing the required python.
    version
 4. Configure poetry with `poetry config virtualenvs.in-project true`
 5. Create the virtual environment with `poetry install`

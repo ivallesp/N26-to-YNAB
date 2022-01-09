@@ -5,7 +5,7 @@ description = "Bridge between YNAB and N26 to automate transaction imports"
 authors = ["ivallesp <ivanvallesperez@gmail.com>"]
 
 [tool.poetry.dependencies]
-python = "^3.6.1"
+python = "^3.9.9"
 n26 = "3.3.0"
 ynab_client = "^0.1.8"
 pandas = "^1.0.1"
