@@ -9,7 +9,7 @@ Follow the next steps to have the project running in your system:
 
 1. Install [pyenv](https://github.com/pyenv/pyenv) and [poetry](https://python-poetry.org/) in your system following the linked official guides.
 2. Open a terminal, clone this repository and `cd` to the cloned folder.
-3. Run `pyenv install 3.6.1` in your terminal for installing the required python.
+3. Run `pyenv install 3.9.9` in your terminal for installing the required python.
    version
 4. Configure poetry with `poetry config virtualenvs.in-project true`
 5. Create the virtual environment with `poetry install`
@@ -17,6 +17,7 @@ Follow the next steps to have the project running in your system:
 7. Create the `config/n26.toml` file following the example in the same folder. Make sure you establish the links from each account configured here to the desired YNAB account name
 8. Activate the environment with `source .venv/bin/activate`
 9. Run `python main.py -a <n26-account-name>` to send the transactions from the n26 account specified to the YNAB account
+   Alternatively, use `poetry run python main.py -a <n26-account-name>`
 
 ## Contribution
 Pull requests and issues will be tackled upon availability.
