@@ -691,18 +691,25 @@ optional = false
 python-versions = "*"
 
 [[package]]
-name = "ynab-client"
+name = "ynab_client"
 version = "0.1.8"
-description = "YNAB API v1 Python Client"
+description = ""
 category = "main"
 optional = false
 python-versions = "*"
+develop = false
 
 [package.dependencies]
 certifi = "*"
 python-dateutil = "*"
 six = ">=1.10"
 urllib3 = ">=1.15"
+
+[package.source]
+type = "git"
+url = "https://github.com/gchiam/ynab-client-python.git"
+reference = "6d154f3"
+resolved_reference = "6d154f3efecef6a5c3ff1cf89d8a2a59f9f7bb97"
 
 [[package]]
 name = "zipp"
@@ -719,7 +726,7 @@ testing = ["pytest (>=4.6)", "pytest-checkdocs (>=1.2.3)", "pytest-flake8", "pyt
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.9.9"
-content-hash = "0d536b0c8c8e32ac86d1f69cd4418eed4de1b76673f2e7703997f5c51bb90efd"
+content-hash = "bd1fb6daa326dcd26a188a3d80fdd7dd8ed6aaed52deacd57db9b8d88105c502"
 
 [metadata.files]
 appdirs = [
@@ -1280,10 +1287,7 @@ wcwidth = [
     {file = "wcwidth-0.2.5-py2.py3-none-any.whl", hash = "sha256:beb4802a9cebb9144e99086eff703a642a13d6a0052920003a230f3294bbe784"},
     {file = "wcwidth-0.2.5.tar.gz", hash = "sha256:c4d647b99872929fdb7bdcaa4fbe7f01413ed3d98077df798530e5b04f116c83"},
 ]
-ynab-client = [
-    {file = "ynab_client-0.1.8-py3-none-any.whl", hash = "sha256:7301eeaf7ef8836d9faf63c65c03703f7acfc432b5babe94ea207f68e282b0a7"},
-    {file = "ynab_client-0.1.8.tar.gz", hash = "sha256:d6289c5d3c80c2a35698e5953cdebd7d007c9e38821b61cf8c699e48b9a4f0e7"},
-]
+ynab_client = []
 zipp = [
     {file = "zipp-3.4.1-py3-none-any.whl", hash = "sha256:51cb66cc54621609dd593d1787f286ee42a5c0adbb4b29abea5a63edc3e03098"},
     {file = "zipp-3.4.1.tar.gz", hash = "sha256:3607921face881ba3e026887d8150cca609d517579abe052ac81fc5aeffdbd76"},
